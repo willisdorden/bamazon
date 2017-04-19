@@ -96,34 +96,29 @@ var lowInventory = function(){
     setTimeout(mangerPrompt, 500);
 };
 
-var addToInventory = function(data) {
+var addToInventory = function() {
     inquirer.prompt([{
-        name: "number",
-        message: "How many units would you like to add?"
-    }]).then(function(newTotal) {
-        quantity = parseInt(data.stock_quantity) + parseInt(newTotal.number);
-        connection.query("UPDATE products SET ? WHERE ?", [{
-                stock_quantity: quantity
-            }, {
-                product_name: data.product_name
-            }],
-            function(err, res) {});
-    });
+        connection.query("SELECT * FROM products", function(err, res) {
+        if (err) throw err;
+        inquirer.prompt([{
+            type: "list",
+            message: "Which item would you like to restock?",
+            choices: function() {
+                for (var i = 0; i < res.length; i++) {
+                    productArray.push("ID: " + res[i].item_id + " - " + res[i].product_name);
+                }
+                return productArray;
+            },
+            name: "input"
+        }]).then(function(data) {
+            for (var x = 0; x < res.length; x++) {
 
-    inquirer.prompt([{
-        type: "list",
-        message: "Would you like to do more?",
-        choices: ["Yes", "No"],
-        name: "input"
-    }]).then(function(response) {
-        if (response.input === "Yes") {
-            addToInventory();
-        } else {
-            connection.end(function() {
-                console.log("thank you.");
-            });
-
-        }
+                switch (data.input) {
+                    case productArray[x]:
+                        update(res[x]);
+                }
+            }
+        })
     });
 }
 
