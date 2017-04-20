@@ -86,6 +86,10 @@ var productForSale = function() {
     setTimeout(mangerPrompt, 500);
 };
 
+var update = function(data){
+    
+}
+
 var lowInventory = function(){
     var query = "SELECT * FROM products WHERE `stock_quantiy` < " + 5;
     connection.query(query, function(err,res){
@@ -97,7 +101,6 @@ var lowInventory = function(){
 };
 
 var addToInventory = function() {
-    inquirer.prompt([{
         connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         inquirer.prompt([{
@@ -105,22 +108,23 @@ var addToInventory = function() {
             message: "Which item would you like to restock?",
             choices: function() {
                 for (var i = 0; i < res.length; i++) {
-                    productArray.push("ID: " + res[i].item_id + " - " + res[i].product_name);
+                    productArr.push("ID: " + res[i].item_id + " - " + res[i].product_name);
                 }
-                return productArray;
+                return productArr;
             },
             name: "input"
         }]).then(function(data) {
             for (var x = 0; x < res.length; x++) {
 
                 switch (data.input) {
-                    case productArray[x]:
+                    case productArr[x]:
                         update(res[x]);
                 }
             }
         })
     });
-}
+};
+
 
 var addNewProduct = function(){
     inquirer.prompt([{
@@ -157,6 +161,7 @@ var addNewProduct = function(){
             connection.end(function() {
                 console.log("thank you.");
             });
+            setTimeout(mangerPrompt, 500);
 
         }
     });
